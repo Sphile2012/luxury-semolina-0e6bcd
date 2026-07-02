@@ -164,10 +164,14 @@ export default function SirenButton() {
   return (
     <button
       onClick={startSiren}
-      className="bg-amber-500/15 border border-amber-500/30 rounded-2xl p-4 flex flex-col items-center gap-2 transition-all active:scale-95 hover:bg-amber-500/20 w-full"
+      className="flex flex-col items-center gap-2 py-4 rounded-2xl transition-all active:scale-95 w-full"
+      style={{ background: "#FDF6E8", border: "1px solid #F5DFA0", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
     >
-      <Volume2 size={20} className="text-amber-400" />
-      <span className="text-[#888] text-xs font-medium">Siren</span>
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+        style={{ background: "#fff", boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
+        <Volume2 size={17} style={{ color: "#B87A1A" }} />
+      </div>
+      <span className="text-[11px] font-semibold" style={{ color: "#5A5E72" }}>Siren</span>
     </button>
   );
 }

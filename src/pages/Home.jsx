@@ -139,7 +139,7 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white">
+    <div className="min-h-screen text-gray-900 page-enter" style={{ background: "var(--sos-bg)" }}>
       {/* Emergency Calling Screen overlay */}
       <AnimatePresence>
         {showCallingScreen && activeAlert && (
@@ -153,10 +153,7 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Hidden tap-to-alert: tap 4x in bottom-right corner */}
-      <TapToAlert
-        corner="bottom-right"
-        onTriggered={handleAlertTriggered}
-      />
+      <TapToAlert corner="bottom-right" onTriggered={handleAlertTriggered} />
 
       {activeAlert && (
         <ActiveAlertBanner alert={activeAlert} onResolve={() => handleAlertResolved(activeAlert.id)} />

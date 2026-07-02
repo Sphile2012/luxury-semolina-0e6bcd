@@ -7,28 +7,25 @@ export default function ActiveAlertBanner({ alert, onResolve }) {
 
   return (
     <motion.div
-      initial={{ y: -100 }}
+      initial={{ y: -80 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 text-white"
+      className="sticky top-0 z-50"
       style={{
-        background: "linear-gradient(135deg, rgba(220,38,38,0.95), rgba(239,68,68,0.9))",
-        backdropFilter: "blur(16px)",
-        borderBottom: "1px solid rgba(239,68,68,0.4)",
-        boxShadow: "0 4px 32px rgba(239,68,68,0.3), 0 0 0 1px rgba(239,68,68,0.2)",
+        background: "var(--sos-coral)",
+        boxShadow: "0 4px 20px rgba(240,113,112,0.4)",
       }}
     >
-      {/* Main bar */}
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <motion.div
-            animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
+            animate={{ scale: [1, 1.4, 1] }}
             transition={{ repeat: Infinity, duration: 1 }}
-            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-            style={{ background: "#fff", boxShadow: "0 0 8px rgba(255,255,255,0.8)" }}
+            className="w-2.5 h-2.5 rounded-full bg-white flex-shrink-0"
+            style={{ boxShadow: "0 0 8px rgba(255,255,255,0.8)" }}
           />
           <div>
-            <p className="font-black text-sm tracking-wide">🚨 EMERGENCY ACTIVE</p>
-            <p className="text-red-100 text-xs opacity-80">
+            <p className="font-black text-white text-sm tracking-wide">🚨 EMERGENCY ACTIVE</p>
+            <p className="text-white/80 text-xs">
               {alert?.contacts_notified?.length > 0
                 ? `${alert.contacts_notified.length} contact${alert.contacts_notified.length !== 1 ? "s" : ""} notified · GPS live`
                 : "Contacts notified · GPS shared"}
@@ -36,17 +33,15 @@ export default function ActiveAlertBanner({ alert, onResolve }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setExpanded(e => !e)}
+          <button onClick={() => setExpanded(e => !e)}
             className="w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.15)" }}
-          >
-            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            style={{ background: "rgba(255,255,255,0.2)" }}>
+            {expanded ? <ChevronUp size={14} className="text-white" /> : <ChevronDown size={14} className="text-white" />}
           </button>
           <button
             onClick={onResolve}
-            className="flex items-center gap-1.5 text-red-600 text-xs font-black px-3 py-1.5 rounded-full"
-            style={{ background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}
+            className="flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full"
+            style={{ background: "#fff", color: "var(--sos-coral-deep)" }}
           >
             <CheckCircle size={12} /> Resolve
           </button>
@@ -58,37 +53,35 @@ export default function ActiveAlertBanner({ alert, onResolve }) {
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           className="px-4 pb-4 pt-2 space-y-3"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }}
+          style={{ borderTop: "1px solid rgba(255,255,255,0.2)" }}
         >
           {alert?.address && (
             <div className="flex items-start gap-2">
-              <MapPin size={13} className="text-red-200 mt-0.5 flex-shrink-0" />
+              <MapPin size={13} className="text-white/80 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-red-100 text-xs font-semibold">{alert.address}</p>
+                <p className="text-white text-xs font-semibold">{alert.address}</p>
                 {alert.latitude && (
                   <button
                     onClick={() => window.open(`https://www.google.com/maps?q=${alert.latitude},${alert.longitude}`, "_blank")}
-                    className="text-red-200 text-[10px] underline opacity-80"
-                  >
+                    className="text-white/70 text-[10px] underline">
                     Open in Google Maps →
                   </button>
                 )}
               </div>
             </div>
           )}
-
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => { window.location.href = "tel:10111"; }}
-              className="flex items-center justify-center gap-2 font-black text-xs py-2.5 rounded-xl text-red-600"
-              style={{ background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
+              className="flex items-center justify-center gap-2 font-black text-xs py-2.5 rounded-xl"
+              style={{ background: "#fff", color: "var(--sos-coral-deep)" }}
             >
-              <Phone size={13} /> Call Police (10111)
+              <Phone size={13} /> Police (10111)
             </button>
             <button
               onClick={() => { window.location.href = "tel:10177"; }}
               className="flex items-center justify-center gap-2 font-bold text-white text-xs py-2.5 rounded-xl"
-              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
+              style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)" }}
             >
               <Phone size={13} /> Ambulance (10177)
             </button>

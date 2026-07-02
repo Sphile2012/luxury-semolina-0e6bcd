@@ -1,2 +1,8 @@
-// Legacy file — no longer used. Kept to avoid import errors if any stale reference exists.
-export const appParams = {};
+// app-params.js — stub (no external cloud service needed)
+export const appParams = {
+  appId: 'panic-ring',
+  token: null,
+  fromUrl: typeof window !== 'undefined' ? window.location.href : '/',
+  functionsVersion: null,
+  appBaseUrl: null,
+};

@@ -2,10 +2,13 @@
   "name": "panic-ring-backend",
   "version": "1.0.0",
   "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
-    "start": "node start.js",
-    "dev": "node start.js",
-    "direct": "node src/index.js"
+    "start": "node src/index.js",
+    "start:auto": "node start.js",
+    "dev": "node start.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

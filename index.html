@@ -3,21 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+
+    <!-- Mobile-first viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover" />
+
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#ef4444" />
+    <meta name="theme-color" content="#0b0f1a" />
     <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- iOS PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Panic Ring" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+
+    <!-- App meta -->
     <meta name="application-name" content="Panic Ring" />
-    <meta name="description" content="Panic Ring — Personal safety app with instant SOS alerts, live GPS tracking, and automatic emergency response. Stay protected 24/7." />
-    <meta name="keywords" content="Panic Ring, personal safety, SOS alert, emergency, GPS tracking, South Africa" />
+    <meta name="description" content="Wearable panic ring with instant SOS alerts, live GPS tracking, and automatic emergency response. Stay protected 24/7." />
+    <meta name="keywords" content="panic ring, personal safety, SOS alert, emergency, GPS tracking, South Africa" />
     <meta name="robots" content="index, follow" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Open Graph -->
     <meta property="og:title" content="Panic Ring - Personal Safety" />
     <meta property="og:description" content="Instant SOS alerts, live GPS tracking, and automatic emergency response." />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="/icon-512.png" />
+
+    <!-- Prevent phone number detection -->
+    <meta name="format-detection" content="telephone=no" />
+
     <title>Panic Ring - Personal Safety</title>
+
+    <!-- Preconnect for map tiles -->
+    <link rel="preconnect" href="https://tile.openstreetmap.org" />
+    <link rel="preconnect" href="https://unpkg.com" />
   </head>
   <body>
     <div id="root"></div>

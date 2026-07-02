@@ -1,0 +1,41 @@
+{
+  "name": "EmergencyContact",
+  "type": "object",
+  "properties": {
+    "owner_email": {
+      "type": "string",
+      "description": "Email of the user who owns this contact"
+    },
+    "name": {
+      "type": "string",
+      "description": "Full name of the emergency contact"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number (used for WhatsApp/SMS alerts)"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address of the contact"
+    },
+    "relationship": {
+      "type": "string",
+      "enum": ["family", "friend", "colleague", "neighbor", "other"],
+      "default": "friend"
+    },
+    "priority": {
+      "type": "number",
+      "description": "Alert order priority (1 = first notified)",
+      "default": 1
+    },
+    "notify_sms": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_email": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": ["owner_email", "name", "phone"]
+}

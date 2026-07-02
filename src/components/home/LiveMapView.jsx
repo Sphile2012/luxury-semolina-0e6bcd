@@ -35,29 +35,21 @@ const deviceIcon = new L.DivIcon({
 
 function FitBounds({ points }) {
   const map = useMap();
-  if (points.length > 0) {
-    try {
-      const bounds = L.latLngBounds(points);
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-    } catch {}
-  }
+  useEffect(() => {
+    if (points.length > 0) {
+      try {
+        const bounds = L.latLngBounds(points);
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+      } catch {}
+    }
+  }, [points, map]);
   return null;
 }
 
 export default function LiveMapView({ user, alerts = [] }) {
   const [liveAlerts, setLiveAlerts] = useState(alerts);
 
-  // Seed from prop, then keep in sync with real-time updates
   useEffect(() => { setLiveAlerts(alerts); }, [alerts]);
-
-  useEffect(() => {
-    const unsub = entities.Alert.subscribe((event) => {
-      if (event.type === 'update') {
-        setLiveAlerts(prev => prev.map(a => a.id === event.id ? { ...a, ...event.data } : a));
-      }
-    });
-    return unsub;
-  }, []);
 
   const { data: devices = [] } = useQuery({
     queryKey: ["sharedDevices", user?.email],
@@ -67,19 +59,15 @@ export default function LiveMapView({ user, alerts = [] }) {
     refetchInterval: 20000,
   });
 
-  const activeAlerts = liveAlerts.filter(
-    (a) => a.status === "active" && a.latitude && a.longitude
-  );
-  const trackedDevices = devices.filter(
-    (d) => d.last_latitude && d.last_longitude
-  );
+  const activeAlerts = liveAlerts.filter(a => a.status === "active" && a.latitude && a.longitude);
+  const trackedDevices = devices.filter(d => d.last_latitude && d.last_longitude);
 
   const allPoints = [
-    ...activeAlerts.map((a) => [a.latitude, a.longitude]),
-    ...trackedDevices.map((d) => [d.last_latitude, d.last_longitude]),
+    ...activeAlerts.map(a => [a.latitude, a.longitude]),
+    ...trackedDevices.map(d => [d.last_latitude, d.last_longitude]),
   ];
 
-  const defaultCenter = [-26.2041, 28.0473]; // Johannesburg
+  const defaultCenter = [-26.2041, 28.0473];
   const hasPoints = allPoints.length > 0;
 
   return (
@@ -111,10 +99,9 @@ export default function LiveMapView({ user, alerts = [] }) {
           attributionControl={false}
         >
           <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-
           {hasPoints && <FitBounds points={allPoints} />}
 
-          {activeAlerts.map((a) => (
+          {activeAlerts.map(a => (
             <Marker key={a.id} position={[a.latitude, a.longitude]} icon={alertIcon}>
               <Popup>
                 <div style={{ minWidth: 140 }}>
@@ -127,20 +114,15 @@ export default function LiveMapView({ user, alerts = [] }) {
             </Marker>
           ))}
 
-          {/* Route to nearest responder location for each active alert */}
-          {activeAlerts.map((a) => (
-            <RouteOverlay key={`route-${a.id}`} alert={a} />
-          ))}
+          {activeAlerts.map(a => <RouteOverlay key={`route-${a.id}`} alert={a} />)}
 
-          {trackedDevices.map((d) => (
+          {trackedDevices.map(d => (
             <Marker key={d.id} position={[d.last_latitude, d.last_longitude]} icon={deviceIcon}>
               <Popup>
                 <div style={{ minWidth: 140 }}>
                   <p style={{ fontWeight: 700, color: "#0d9488", marginBottom: 2 }}>📱 {d.device_name || "Device"}</p>
                   {d.last_address && <p style={{ fontSize: 11, color: "#555" }}>{d.last_address}</p>}
-                  {d.last_accuracy && (
-                    <p style={{ fontSize: 10, color: "#888", marginTop: 2 }}>±{Math.round(d.last_accuracy)}m accuracy</p>
-                  )}
+                  {d.last_accuracy && <p style={{ fontSize: 10, color: "#888", marginTop: 2 }}>±{Math.round(d.last_accuracy)}m accuracy</p>}
                 </div>
               </Popup>
             </Marker>

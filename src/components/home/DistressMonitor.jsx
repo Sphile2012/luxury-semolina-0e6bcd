@@ -29,7 +29,7 @@ const REASON_LABELS = {
 };
 
 export default function DistressMonitor({ active, alertId, user }) {
-  const [event, setEvent] = useState(null); // { reason, time }
+  const [event, setEvent] = useState(null);
 
   const handleDistress = useCallback(async (reason) => {
     playSecondaryAlarm();
@@ -45,6 +45,7 @@ export default function DistressMonitor({ active, alertId, user }) {
       } catch {}
     }
 
+    // Re-notify contacts via WhatsApp
     try {
       const contacts = await entities.EmergencyContact.filter({ owner_email: user?.email }, "priority");
       const msg = encodeURIComponent(`🚨 *SECONDARY DISTRESS SIGNAL — ${user?.full_name}*\n\nAudio analysis detected: ${reason === "keyword" ? "distress keyword spoken" : "sustained loud sound / screaming"}.\n\nPlease check on them immediately!\n\n_Sent via Panic Ring_`);

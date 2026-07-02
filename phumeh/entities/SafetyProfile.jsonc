@@ -1,0 +1,62 @@
+{
+  "name": "SafetyProfile",
+  "type": "object",
+  "properties": {
+    "owner_email": {
+      "type": "string"
+    },
+    "owner_phone": {
+      "type": "string",
+      "description": "Owner's phone number for device lookup"
+    },
+    "custom_alert_message": {
+      "type": "string",
+      "default": "I need help! Please contact me immediately."
+    },
+    "auto_call_911": {
+      "type": "boolean",
+      "default": false
+    },
+    "device_connected": {
+      "type": "boolean",
+      "default": false
+    },
+    "device_name": {
+      "type": "string"
+    },
+    "device_imei": {
+      "type": "string",
+      "description": "Unique device identifier"
+    },
+    "device_model": {
+      "type": "string"
+    },
+    "device_platform": {
+      "type": "string"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "standard",
+        "premium"
+      ],
+      "default": "basic"
+    },
+    "location_sharing": {
+      "type": "boolean",
+      "default": true
+    },
+    "safe_zones_alerts": {
+      "type": "boolean",
+      "default": true
+    },
+    "crime_alerts": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "owner_email"
+  ]
+}

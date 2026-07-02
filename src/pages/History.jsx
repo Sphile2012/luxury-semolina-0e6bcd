@@ -3,7 +3,6 @@ import { entities } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { formatDistanceToNow, format } from "date-fns";
 import { MapPin, Clock, AlertTriangle, CheckCircle, XCircle, Filter } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
 
 const statusConfig = {
   active: { icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10 border-red-500/20", label: "Active" },
@@ -31,10 +30,10 @@ export default function History() {
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white">
       <div className="max-w-md mx-auto px-4 pt-6 pb-24">
-        <PageHeader
-          title="Incident History"
-          subtitle={`${alerts.length} total incidents recorded`}
-        />
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Incident History</h1>
+          <p className="text-[#666] text-sm mt-1">{alerts.length} total incidents recorded</p>
+        </div>
 
         {/* Filter Tabs */}
         <div className="flex gap-2 mb-6">

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { functions } from "@/api/client";
 import useOfflineMode from "@/hooks/useOfflineMode";
 import OfflineBanner from "./OfflineBanner";
+import { functions } from "@/api/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, CheckCircle, Eye, EyeOff, Siren, MapPin, Clock } from "lucide-react";
 import CheckInTracker from "./CheckInTracker";
@@ -58,13 +58,17 @@ function playAlarmSiren() {
     }
     oscillator.start(now);
     oscillator.stop(now + 3);
-  } catch {}
+  } catch (e) {
+    console.warn("Audio not supported", e);
+  }
 }
 
 async function startCameraStream() {
   try {
-    return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-  } catch {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    return stream;
+  } catch (e) {
+    console.warn("Camera unavailable", e);
     return null;
   }
 }
@@ -126,7 +130,6 @@ export default function PanicButton({ user, contacts, onAlertTriggered, hasActiv
     }
 
     if (selectedMode === "urgent") playAlarmSiren();
-
     if (selectedMode === "discreet") {
       const stream = await startCameraStream();
       if (stream) setCameraStream(stream);
@@ -165,13 +168,15 @@ export default function PanicButton({ user, contacts, onAlertTriggered, hasActiv
       const response = await functions.invoke('sendPanicAlert', {
         latitude: lat, longitude: lng, accuracy, address,
         message: alertMessage,
-        trigger_method: selectedMode === "discreet" ? "app_button" : "Panic Ring_device",
+        trigger_method: selectedMode === "discreet" ? "app_button" : "panic_ring",
         ...(audioUrl ? { audio_url: audioUrl } : {})
       });
 
-      const links = response.whatsapp_links || [];
-      const toOpen = selectedMode === "discreet" ? links.slice(0, 1) : links;
-      toOpen.forEach((link, i) => setTimeout(() => window.open(link.url, '_blank'), i * 800));
+      if (response.success) {
+        const links = response.whatsapp_links || [];
+        const toOpen = selectedMode === "discreet" ? links.slice(0, 1) : links;
+        toOpen.forEach((link, i) => setTimeout(() => window.open(link.url, '_blank'), i * 800));
+      }
     } catch (error) {
       console.error('Alert error:', error);
     }
@@ -192,7 +197,15 @@ export default function PanicButton({ user, contacts, onAlertTriggered, hasActiv
       <OfflineBanner isOnline={isOnline} queuedAlerts={queuedAlerts} />
 
       {!hasActiveAlert && (
-        <div className="flex gap-2 mb-6 bg-white/[0.03] border border-white/[0.07] rounded-2xl p-1.5">
+        <div
+          className="flex gap-2 mb-6 p-1.5 rounded-2xl"
+          style={{
+            background: "rgba(17,24,39,0.8)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+          }}
+        >
           {MODES.map(m => {
             const Icon = m.icon;
             const active = selectedMode === m.id;
@@ -200,10 +213,15 @@ export default function PanicButton({ user, contacts, onAlertTriggered, hasActiv
               <button
                 key={m.id}
                 onClick={() => setSelectedMode(m.id)}
-                className={`flex-1 flex flex-col items-center gap-1 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${active ? "text-white shadow-lg" : "text-[#555] hover:text-[#888]"}`}
-                style={active ? { backgroundColor: m.color + "33", border: `1px solid ${m.color}55` } : {}}
+                className="flex-1 flex flex-col items-center gap-1 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all"
+                style={active ? {
+                  background: `${m.color}22`,
+                  border: `1px solid ${m.color}44`,
+                  color: m.color,
+                  boxShadow: `0 0 12px ${m.color}33`,
+                } : { color: "#334155", border: "1px solid transparent" }}
               >
-                <Icon size={15} style={active ? { color: m.color } : {}} />
+                <Icon size={15} style={{ color: active ? m.color : "#334155" }} />
                 <span>{m.label}</span>
               </button>
             );
@@ -239,28 +257,43 @@ export default function PanicButton({ user, contacts, onAlertTriggered, hasActiv
         )}
 
         <svg className="absolute" width="100%" height="100%" viewBox="0 0 220 220" style={{ transform: "rotate(-90deg)" }}>
-          <circle cx={110} cy={110} r={100} fill="none" stroke="#1a1a2e" strokeWidth={6} />
-          <circle
-            cx={110} cy={110} r={100}
+          <circle cx={110} cy={110} r={100} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={6} />
+          <circle cx={110} cy={110} r={100}
             fill="none"
-            stroke={mode.ringColor}
+            stroke={`url(#ring-gradient-${selectedMode})`}
             strokeWidth={6}
             strokeDasharray={2 * Math.PI * 100}
             strokeDashoffset={2 * Math.PI * 100 * (1 - (hasActiveAlert ? 1 : progress / 100))}
             strokeLinecap="round"
-            style={{ transition: pressing ? "none" : "stroke-dashoffset 0.3s ease" }}
+            style={{ transition: pressing ? "none" : "stroke-dashoffset 0.3s ease", filter: `drop-shadow(0 0 8px ${mode.ringColor}99)` }}
           />
+          <defs>
+            <linearGradient id="ring-gradient-discreet" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#6366f1" /><stop offset="100%" stopColor="#8b5cf6" />
+            </linearGradient>
+            <linearGradient id="ring-gradient-urgent" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#ef4444" /><stop offset="100%" stopColor="#f97316" />
+            </linearGradient>
+            <linearGradient id="ring-gradient-checkin" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#10b981" /><stop offset="100%" stopColor="#06b6d4" />
+            </linearGradient>
+          </defs>
         </svg>
 
         <motion.button
-          className={`relative z-10 rounded-full flex flex-col items-center justify-center select-none focus:outline-none
-            ${hasActiveAlert ? mode.bgActive : "bg-[#0d0d15] " + mode.borderColor + " border-2"}`}
-          style={{ width: "min(176px, 64vw)", height: "min(176px, 64vw)" }}
-          onMouseDown={startPress}
-          onMouseUp={endPress}
-          onMouseLeave={endPress}
-          onTouchStart={startPress}
-          onTouchEnd={endPress}
+          className="relative z-10 rounded-full flex flex-col items-center justify-center select-none focus:outline-none"
+          style={{
+            width: "min(176px, 64vw)", height: "min(176px, 64vw)",
+            background: hasActiveAlert
+              ? `linear-gradient(135deg, ${mode.color}cc, ${mode.color}88)`
+              : "rgba(13,13,21,0.9)",
+            border: `2px solid ${mode.color}44`,
+            boxShadow: hasActiveAlert || pressing
+              ? `0 0 40px ${mode.color}55, 0 0 80px ${mode.color}22, inset 0 1px 0 rgba(255,255,255,0.1)`
+              : `0 0 20px ${mode.color}22, inset 0 1px 0 rgba(255,255,255,0.06)`,
+          }}
+          onMouseDown={startPress} onMouseUp={endPress} onMouseLeave={endPress}
+          onTouchStart={startPress} onTouchEnd={endPress}
           animate={hasActiveAlert ? { scale: [1, 1.03, 1] } : pressing ? { scale: 0.97 } : { scale: 1 }}
           transition={hasActiveAlert ? { repeat: Infinity, duration: 1.2 } : {}}
         >

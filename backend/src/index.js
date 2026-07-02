@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const entityRoutes = require('./routes/entities');
 const functionRoutes = require('./routes/functions');
 const payfastRoutes = require('./routes/payfast');
+const advancedRoutes = require('./routes/advanced');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -23,9 +24,17 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
+    // Allow all localhost origins (dev)
     if (/^http:\/\/localhost(:\d+)?$/.test(origin)) return callback(null, true);
+    // Allow 127.0.0.1 (dev)
+    if (/^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) return callback(null, true);
+    // Allow configured production domains
     const allowed = (process.env.FRONTEND_URL || '')
-      .split(',').map(s => s.trim()).filter(Boolean);
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    // Also allow any *.netlify.app domain
+    if (origin.endsWith('.netlify.app')) return callback(null, true);
     if (allowed.includes(origin)) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
@@ -79,6 +88,7 @@ app.use('/api/auth', rateLimit(20), authRoutes);
 app.use('/api/entities', entityRoutes);
 app.use('/api/functions', functionRoutes);
 app.use('/api/payfast', payfastRoutes);
+app.use('/api', advancedRoutes);
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

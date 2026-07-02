@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { entities, functions } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { entities, functions } from "@/api/client";
 import PanicButton from "@/components/home/PanicButton";
 import StatusBar from "@/components/home/StatusBar";
 import QuickStats from "@/components/home/QuickStats";
@@ -18,11 +19,16 @@ import LiveMapView from "@/components/home/LiveMapView";
 import useBatteryMonitor from "@/hooks/useBatteryMonitor";
 import HomeSkeleton from "@/components/home/HomeSkeleton";
 import DistressMonitor from "@/components/home/DistressMonitor";
+import EmergencyCallingScreen from "@/components/home/EmergencyCallingScreen";
+import TapToAlert from "@/components/home/TapToAlert";
+import { AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [pendingAudioUrl, setPendingAudioUrl] = useState(null);
+  const [showCallingScreen, setShowCallingScreen] = useState(false);
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['safetyProfile', user?.email],
@@ -77,38 +83,46 @@ export default function Home() {
   // Periodically push battery level to SharedDevice record
   useEffect(() => {
     if (!user?.email || !profile?.device_imei) return;
+    // getBattery is a non-standard API, not available everywhere
+    const hasBattery = typeof navigator !== 'undefined' && 'getBattery' in navigator;
+    if (!hasBattery) return;
 
     const pushBattery = async () => {
       try {
-        // Battery API — not typed in all environments, use dynamic access
-        const navAny = /** @type {any} */ (navigator);
-        const bat = navAny.getBattery ? await navAny.getBattery().catch(() => null) : null;
-        const pos = await new Promise((res, rej) =>
-          navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: false, timeout: 8000 })
-        ).catch(() => null);
+        // eslint-disable-next-line no-undef
+        const bat = await navigator['getBattery']?.();
+        if (!bat) return;
+        const pos = await new Promise((res) =>
+          navigator.geolocation.getCurrentPosition(res, () => res(null), { enableHighAccuracy: false, timeout: 8000 })
+        );
 
-        const { getDeviceInfo } = await import("@/hooks/useDeviceFingerprint");
-        const info = getDeviceInfo();
+        const info = (await import("@/hooks/useDeviceFingerprint")).getDeviceInfo();
         await functions.invoke("updateDeviceLocation", {
-          latitude: pos?.coords.latitude,
-          longitude: pos?.coords.longitude,
-          accuracy: pos?.coords.accuracy,
+          latitude: pos?.coords?.latitude,
+          longitude: pos?.coords?.longitude,
+          accuracy: pos?.coords?.accuracy,
           deviceId: info.deviceId,
           deviceName: info.deviceName,
           platform: info.platform,
-          batteryLevel: bat ? bat.level : null,
-          batteryCharging: bat ? bat.charging : false,
+          batteryLevel: bat.level,
+          batteryCharging: bat.charging,
         });
       } catch {}
     };
 
-    pushBattery();
-    const interval = setInterval(pushBattery, 5 * 60 * 1000);
+    pushBattery(); // run immediately
+    const interval = setInterval(pushBattery, 5 * 60 * 1000); // every 5 minutes
     return () => clearInterval(interval);
   }, [user?.email, profile?.device_imei]);
 
   const handleAlertResolved = async (alertId) => {
     await entities.Alert.update(alertId, { status: 'resolved', resolved_at: new Date().toISOString() });
+    setShowCallingScreen(false);
+    invalidateAll();
+  };
+
+  const handleAlertTriggered = () => {
+    setShowCallingScreen(true);
     invalidateAll();
   };
 
@@ -117,7 +131,7 @@ export default function Home() {
   if (isLoadingAuth || (isAuthenticated && loading)) return <HomeSkeleton />;
 
   if (!isAuthenticated) return (
-    <LandingHero onGetStarted={() => window.location.href = '/login'} />
+    <LandingHero onGetStarted={() => navigate('/Login')} />
   );
 
   if (!loading && needsOnboarding) return (
@@ -126,6 +140,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white">
+      {/* Emergency Calling Screen overlay */}
+      <AnimatePresence>
+        {showCallingScreen && activeAlert && (
+          <EmergencyCallingScreen
+            contacts={contacts}
+            alert={activeAlert}
+            user={user}
+            onDismiss={() => setShowCallingScreen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Hidden tap-to-alert: tap 4x in bottom-right corner */}
+      <TapToAlert
+        corner="bottom-right"
+        onTriggered={handleAlertTriggered}
+      />
+
       {activeAlert && (
         <ActiveAlertBanner alert={activeAlert} onResolve={() => handleAlertResolved(activeAlert.id)} />
       )}
@@ -138,7 +170,7 @@ export default function Home() {
           user={user}
           profile={profile}
           contacts={contacts}
-          onAlertTriggered={invalidateAll}
+          onAlertTriggered={handleAlertTriggered}
           hasActiveAlert={!!activeAlert}
           audioUrl={pendingAudioUrl}
         />

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { entities } from "@/api/client";
 import { AlertTriangle, MapPin, MessageSquare, CheckCircle, Clock, Radio, Mic, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -99,50 +98,9 @@ export default function IncidentFeed({ alert }) {
     return () => clearInterval(iv);
   }, [alert.created_date]);
 
-  // Real-time subscription
+  // No real-time subscription needed — parent component refetches via React Query
   useEffect(() => {
-    const unsub = entities.Alert.subscribe((ev) => {
-      if (ev.id !== alert.id) return;
-      const updated = ev.data;
-      const prev = prevAlertRef.current;
-      const additions = [];
-
-      if (updated.status !== prev.status) {
-        additions.push({
-          id: `status-${Date.now()}`,
-          type: "status_change",
-          message: `Status changed → ${updated.status.replace("_", " ")}`,
-          time: "just now",
-          ts: Date.now(),
-        });
-      }
-      if (updated.notes && updated.notes !== prev.notes) {
-        additions.push({
-          id: `note-${Date.now()}`,
-          type: "note",
-          message: updated.notes,
-          time: "just now",
-          ts: Date.now() + 1,
-        });
-      }
-      if (updated.latitude !== prev.latitude || updated.longitude !== prev.longitude) {
-        additions.push({
-          id: `loc-${Date.now()}`,
-          type: "location_ping",
-          message: "📍 Location updated",
-          sub: updated.address || `${updated.latitude?.toFixed(5)}, ${updated.longitude?.toFixed(5)}`,
-          time: "just now",
-          ts: Date.now() + 2,
-        });
-      }
-
-      if (additions.length > 0) {
-        setEvents(prev => [...prev, ...additions]);
-        setNewIds(prev => new Set([...prev, ...additions.map(a => a.id)]));
-        prevAlertRef.current = updated;
-      }
-    });
-    return unsub;
+    // Polling handled by parent's refetchInterval on alerts query
   }, [alert.id]);
 
   // Location pings every 30 seconds

@@ -1,77 +1,39 @@
-# Panic Ring
+**Welcome to your Base44 project** 
 
-Personal safety app with real-time SOS alerts, GPS tracking, emergency contacts, and smartwatch support.
+**About**
 
-## Architecture
+View and Edit  your app on [Base44.com](http://Base44.com) 
 
-- **Frontend** — React + Vite (this folder)
-- **Backend** — Node.js + Express + SQLite (`backend/` folder)
+This project contains everything you need to run your app locally.
 
-## Quick Start
+**Edit the code in your local development environment**
 
-### 1. Start the backend
+Any change pushed to the repo will also be reflected in the Base44 Builder.
 
-```bash
-cd backend
-npm install
-npm run dev
+**Prerequisites:** 
+
+1. Clone the repository using the project's Git URL 
+2. Navigate to the project directory
+3. Install dependencies: `npm install`
+4. Create an `.env.local` file and set the right environment variables
+
+```
+VITE_BASE44_APP_ID=your_app_id
+VITE_BASE44_APP_BASE_URL=your_backend_url
+
+e.g.
+VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
+VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
 ```
 
-Backend runs on **http://localhost:3001**
+Run the app: `npm run dev`
 
-### 2. Start the frontend
+**Publish your changes**
 
-```bash
-# in the root folder
-npm install
-npm run dev
-```
+Open [Base44.com](http://Base44.com) and click on Publish.
 
-Frontend runs on **http://localhost:5173**
+**Docs & Support**
 
-The Vite dev server proxies all `/api/*` requests to the backend automatically.
+Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
 
-## Environment Variables
-
-### Frontend (`.env`)
-```
-VITE_API_URL=http://localhost:3001
-```
-
-### Backend (`backend/.env`)
-```
-PORT=3001
-JWT_SECRET=your-secret-key-here
-FRONTEND_URL=http://localhost:5173
-```
-
-## Features
-
-- 🚨 SOS panic button (urgent / discreet / check-in modes)
-- 📍 Real-time GPS tracking
-- 👥 Emergency contacts with WhatsApp alerts
-- 🗺️ Live map with safe zones
-- 📱 Find My Device
-- ⌚ Smartwatch integration with fall detection
-- 🔋 Low battery alerts
-- 📵 Offline mode with queued alerts
-- 🔐 JWT authentication (register / login)
-- 🛡️ Admin dashboard
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/auth/register` | Create account |
-| POST | `/api/auth/login` | Sign in |
-| GET | `/api/auth/me` | Current user |
-| POST | `/api/entities/:entity/filter` | Query records |
-| POST | `/api/entities/:entity` | Create record |
-| PATCH | `/api/entities/:entity/:id` | Update record |
-| DELETE | `/api/entities/:entity/:id` | Delete record |
-| POST | `/api/functions/sendPanicAlert` | Trigger SOS |
-| POST | `/api/functions/updateDeviceLocation` | Push GPS |
-| POST | `/api/functions/findMyPhoneLogin` | Find device |
-| POST | `/api/functions/sendLowBatteryAlert` | Battery alert |
-| POST | `/api/functions/syncWatchLocation` | Watch sync |
-| POST | `/api/functions/checkGeofence` | Geofence check |
+Support: [https://app.base44.com/support](https://app.base44.com/support)

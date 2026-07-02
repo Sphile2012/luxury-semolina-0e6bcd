@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { functions } from "@/api/client";
-import { Watch, CheckCircle, AlertCircle } from "lucide-react";
+import { Watch } from "lucide-react";
 
 export default function WatchSupport({ user }) {
   const [watchConnected, setWatchConnected] = useState(false);
@@ -8,27 +8,15 @@ export default function WatchSupport({ user }) {
   const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
-    detectWatchPlatform();
-  }, []);
-
-  const detectWatchPlatform = () => {
     const ua = navigator.userAgent.toLowerCase();
-    
-    if (ua.includes("wearos")) {
-      setWatchType("wear_os");
-      setWatchConnected(true);
-    } else if (ua.includes("watchos")) {
-      setWatchType("watchos");
-      setWatchConnected(true);
-    }
-  };
+    if (ua.includes("wearos")) { setWatchType("wear_os"); setWatchConnected(true); }
+    else if (ua.includes("watchos")) { setWatchType("watchos"); setWatchConnected(true); }
+  }, []);
 
   const syncWithWatch = async () => {
     setSyncing(true);
     try {
-      await functions.invoke("syncWatchLocation", {
-        watchType: watchType,
-      });
+      await functions.invoke("syncWatchLocation", { watchType });
     } catch (error) {
       console.error("Watch sync error:", error);
     } finally {
@@ -46,11 +34,8 @@ export default function WatchSupport({ user }) {
           <p className="text-white font-semibold text-sm">Smart Watch Connected</p>
           <p className="text-[#666] text-xs capitalize">{watchType?.replace("_", " ")}</p>
         </div>
-        <button
-          onClick={syncWithWatch}
-          disabled={syncing}
-          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-full disabled:opacity-50 transition-colors"
-        >
+        <button onClick={syncWithWatch} disabled={syncing}
+          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-full disabled:opacity-50 transition-colors">
           {syncing ? "Syncing..." : "Sync"}
         </button>
       </div>

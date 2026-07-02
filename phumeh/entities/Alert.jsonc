@@ -1,0 +1,62 @@
+{
+  "name": "Alert",
+  "type": "object",
+  "properties": {
+    "owner_email": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "resolved",
+        "false_alarm"
+      ],
+      "default": "active"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "address": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string",
+      "default": "I need help! Please contact me immediately."
+    },
+    "trigger_method": {
+      "type": "string",
+      "enum": [
+        "panic_ring",
+        "app_button",
+        "auto",
+        "manual"
+      ],
+      "default": "app_button"
+    },
+    "contacts_notified": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "audio_url": {
+      "type": "string",
+      "description": "Cloud URL of emergency audio recording"
+    }
+  },
+  "required": [
+    "owner_email",
+    "status"
+  ]
+}

@@ -2,10 +2,17 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const DB_DIR = path.join(__dirname, '../../data');
-if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
+// Use /tmp on production (Render free tier) or local data/ dir in dev.
+// For production with persistent data, mount a Render Disk at /data
+// and set DATA_DIR=/data in your environment variables.
+const DATA_DIR = process.env.DATA_DIR ||
+  (process.env.NODE_ENV === 'production'
+    ? '/tmp/panicring-data'
+    : path.join(__dirname, '../../data'));
 
-const sqlite = new Database(path.join(DB_DIR, 'panicring.db'));
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+const sqlite = new Database(path.join(DATA_DIR, 'panicring.db'));
 sqlite.pragma('journal_mode = WAL');
 sqlite.pragma('foreign_keys = ON');
 
@@ -119,6 +126,66 @@ sqlite.exec(`
   CREATE INDEX IF NOT EXISTS idx_shared_devices_device   ON shared_devices(device_id);
   CREATE INDEX IF NOT EXISTS idx_users_email             ON users(email);
 `);
+
+// ── Advanced Safety Features — additive schema migrations ────────────────────
+const migrations = [
+  // REQ 4 — Live location stream
+  `CREATE TABLE IF NOT EXISTS location_streams (
+    id TEXT PRIMARY KEY,
+    owner_email TEXT NOT NULL,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
+    accuracy REAL,
+    stale INTEGER DEFAULT 0,
+    created_date TEXT DEFAULT (datetime('now')),
+    expires_at TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_location_streams_owner ON location_streams(owner_email)`,
+
+  // REQ 16 — Community incidents
+  `CREATE TABLE IF NOT EXISTS community_incidents (
+    id TEXT PRIMARY KEY,
+    lat REAL NOT NULL,
+    lng REAL NOT NULL,
+    category TEXT NOT NULL DEFAULT 'other',
+    description TEXT,
+    upvotes INTEGER DEFAULT 0,
+    created_date TEXT DEFAULT (datetime('now')),
+    expires_at TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_community_incidents_expires ON community_incidents(expires_at)`,
+
+  // REQ 14 — Journeys
+  `CREATE TABLE IF NOT EXISTS journeys (
+    id TEXT PRIMARY KEY,
+    owner_email TEXT NOT NULL,
+    destination TEXT NOT NULL,
+    duration_minutes INTEGER NOT NULL,
+    status TEXT DEFAULT 'active',
+    start_lat REAL,
+    start_lng REAL,
+    contacts TEXT DEFAULT '[]',
+    created_date TEXT DEFAULT (datetime('now')),
+    updated_date TEXT DEFAULT (datetime('now')),
+    completed_at TEXT
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_journeys_owner ON journeys(owner_email)`,
+
+  // REQ 5 — zone_safety_type column on safe_zones
+  `ALTER TABLE safe_zones ADD COLUMN zone_safety_type TEXT DEFAULT 'safe'`,
+
+  // Live alert location quality (metres, from Geolocation API)
+  `ALTER TABLE alerts ADD COLUMN accuracy REAL`,
+];
+
+for (const sql of migrations) {
+  try { sqlite.exec(sql); } catch (e) {
+    // Ignore "already exists" / "duplicate column" errors
+    if (!e.message.includes('already exists') && !e.message.includes('duplicate column')) {
+      console.warn('[DB migration warning]', e.message);
+    }
+  }
+}
 
 // ── Boolean fields that need int↔bool conversion ──────────────────────────────
 const BOOL_FIELDS = new Set([

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { functions } from "@/api/client";
-import { AlertTriangle, CheckCircle, Activity, Power } from "lucide-react";
+import { AlertTriangle, CheckCircle, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const FALL_THRESHOLD = 25; // m/s² total acceleration magnitude
+const FALL_THRESHOLD = 25;
 const COUNTDOWN_SECONDS = 10;
 
 export default function FallDetection({ user, onFallAlert }) {
@@ -13,10 +13,8 @@ export default function FallDetection({ user, onFallAlert }) {
   const [alertSent, setAlertSent] = useState(false);
   const [sensitivity, setSensitivity] = useState("medium");
   const [permissionDenied, setPermissionDenied] = useState(false);
-
   const countdownRef = useRef(null);
   const motionRef = useRef(null);
-
   const thresholds = { low: 30, medium: 25, high: 18 };
 
   const cancelFallAlert = useCallback(() => {
@@ -51,7 +49,6 @@ export default function FallDetection({ user, onFallAlert }) {
     }, 4000);
   }, [user, onFallAlert]);
 
-  // Countdown timer when fall is detected
   useEffect(() => {
     if (!fallDetected || alertSent) return;
     setCountdown(COUNTDOWN_SECONDS);
@@ -68,16 +65,13 @@ export default function FallDetection({ user, onFallAlert }) {
     return () => clearInterval(countdownRef.current);
   }, [fallDetected, alertSent, triggerFallAlert]);
 
-  // DeviceMotion event handler
   useEffect(() => {
     if (!enabled) {
       if (motionRef.current) window.removeEventListener("devicemotion", motionRef.current);
       return;
     }
-
     const threshold = thresholds[sensitivity];
     let lastFallTime = 0;
-
     const handleMotion = (event) => {
       const acc = event.accelerationIncludingGravity;
       if (!acc) return;
@@ -88,25 +82,18 @@ export default function FallDetection({ user, onFallAlert }) {
         setFallDetected(true);
       }
     };
-
     motionRef.current = handleMotion;
     window.addEventListener("devicemotion", handleMotion);
     return () => window.removeEventListener("devicemotion", handleMotion);
   }, [enabled, sensitivity]);
 
   const requestPermissionAndEnable = async () => {
-    // iOS 13+ requires permission for DeviceMotion
     if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
       try {
         const result = await DeviceMotionEvent.requestPermission();
-        if (result === "granted") {
-          setEnabled(true);
-        } else {
-          setPermissionDenied(true);
-        }
-      } catch {
-        setPermissionDenied(true);
-      }
+        if (result === "granted") setEnabled(true);
+        else setPermissionDenied(true);
+      } catch { setPermissionDenied(true); }
     } else {
       setEnabled(true);
     }
@@ -114,20 +101,12 @@ export default function FallDetection({ user, onFallAlert }) {
 
   return (
     <>
-      {/* Fall Alert Overlay */}
       <AnimatePresence>
         {fallDetected && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-6"
-          >
-            <motion.div
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-[#0f0f1a] border-2 border-red-500/60 rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl"
-            >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-6">
+            <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+              className="bg-[#0f0f1a] border-2 border-red-500/60 rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl">
               {alertSent ? (
                 <>
                   <CheckCircle size={56} className="text-red-500 mx-auto mb-4" />
@@ -136,20 +115,14 @@ export default function FallDetection({ user, onFallAlert }) {
                 </>
               ) : (
                 <>
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ repeat: Infinity, duration: 0.8 }}
-                    className="w-20 h-20 bg-red-500/20 border-2 border-red-500 rounded-full flex items-center justify-center mx-auto mb-5"
-                  >
+                  <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 0.8 }}
+                    className="w-20 h-20 bg-red-500/20 border-2 border-red-500 rounded-full flex items-center justify-center mx-auto mb-5">
                     <AlertTriangle size={36} className="text-red-500" />
                   </motion.div>
                   <h2 className="text-white text-2xl font-black mb-1">Fall Detected!</h2>
                   <p className="text-[#aaa] text-sm mb-5">Alerting your emergency contacts in…</p>
                   <div className="text-7xl font-black text-red-500 mb-6 tabular-nums">{countdown}</div>
-                  <button
-                    onClick={cancelFallAlert}
-                    className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg transition-colors"
-                  >
+                  <button onClick={cancelFallAlert} className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg transition-colors">
                     ✅ I'm OK — Cancel
                   </button>
                 </>
@@ -159,7 +132,6 @@ export default function FallDetection({ user, onFallAlert }) {
         )}
       </AnimatePresence>
 
-      {/* Card */}
       <div className={`rounded-2xl border p-4 transition-colors ${enabled ? "bg-red-500/10 border-red-500/30" : "bg-white/[0.03] border-white/[0.07]"}`}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
@@ -171,27 +143,18 @@ export default function FallDetection({ user, onFallAlert }) {
               <p className="text-[#555] text-xs">{enabled ? "🟢 Active — monitoring motion" : "Detects hard falls & alerts contacts"}</p>
             </div>
           </div>
-          <button
-            onClick={() => enabled ? setEnabled(false) : requestPermissionAndEnable()}
-            className={`w-11 h-6 rounded-full transition-colors relative ${enabled ? "bg-red-600" : "bg-white/10"}`}
-          >
+          <button onClick={() => enabled ? setEnabled(false) : requestPermissionAndEnable()}
+            className={`w-11 h-6 rounded-full transition-colors relative ${enabled ? "bg-red-600" : "bg-white/10"}`}>
             <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${enabled ? "left-6" : "left-1"}`} />
           </button>
         </div>
-
-        {permissionDenied && (
-          <p className="text-amber-400 text-xs mb-2">⚠️ Motion sensor permission denied. Enable in device settings.</p>
-        )}
-
+        {permissionDenied && <p className="text-amber-400 text-xs mb-2">⚠️ Motion sensor permission denied. Enable in device settings.</p>}
         {enabled && (
           <div className="flex items-center gap-2">
             <span className="text-[#666] text-xs">Sensitivity:</span>
             {["low", "medium", "high"].map(s => (
-              <button
-                key={s}
-                onClick={() => setSensitivity(s)}
-                className={`px-2 py-0.5 rounded-full text-xs capitalize transition-colors ${sensitivity === s ? "bg-red-600 text-white" : "bg-white/5 text-[#888]"}`}
-              >
+              <button key={s} onClick={() => setSensitivity(s)}
+                className={`px-2 py-0.5 rounded-full text-xs capitalize transition-colors ${sensitivity === s ? "bg-red-600 text-white" : "bg-white/5 text-[#888]"}`}>
                 {s}
               </button>
             ))}

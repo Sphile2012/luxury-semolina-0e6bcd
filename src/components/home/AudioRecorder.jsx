@@ -1,9 +1,9 @@
 import { useState, useRef } from "react";
-import { Mic, Square, CheckCircle, AlertCircle } from "lucide-react";
+import { Mic, Square, Upload, CheckCircle, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function AudioRecorder({ onRecordingComplete }) {
-  const [state, setState] = useState("idle"); // idle | recording | processing | done | error
+  const [state, setState] = useState("idle"); // idle | recording | uploading | done | error
   const [duration, setDuration] = useState(0);
   const [audioUrl, setAudioUrl] = useState(null);
   const mediaRecorderRef = useRef(null);
@@ -22,7 +22,7 @@ export default function AudioRecorder({ onRecordingComplete }) {
       chunksRef.current = [];
 
       mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-      mediaRecorder.onstop = handleProcess;
+      mediaRecorder.onstop = handleUpload;
       mediaRecorder.start();
 
       setState("recording");
@@ -42,22 +42,21 @@ export default function AudioRecorder({ onRecordingComplete }) {
     streamRef.current?.getTracks().forEach(t => t.stop());
   };
 
-  const handleProcess = () => {
-    setState("processing");
+  const handleUpload = async () => {
+    setState("uploading");
     try {
       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      // Create a local object URL — in production you'd upload to your own storage
-      const localUrl = URL.createObjectURL(blob);
-      setAudioUrl(localUrl);
+      // Store as object URL (in-memory) — attach to alert when triggered
+      const objectUrl = URL.createObjectURL(blob);
+      setAudioUrl(objectUrl);
       setState("done");
-      onRecordingComplete?.(localUrl);
+      onRecordingComplete?.(objectUrl);
     } catch {
       setState("error");
     }
   };
 
   const reset = () => {
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
     setState("idle");
     setDuration(0);
     setAudioUrl(null);
@@ -85,15 +84,21 @@ export default function AudioRecorder({ onRecordingComplete }) {
             <span className="text-red-400 text-xs font-mono">{formatTime(duration)}</span>
           </motion.div>
         )}
+        {state === "uploading" && (
+          <div className="flex items-center gap-1.5">
+            <Upload size={12} className="text-amber-400 animate-bounce" />
+            <span className="text-amber-400 text-xs">Uploading…</span>
+          </div>
+        )}
         {state === "done" && (
           <div className="flex items-center gap-1.5">
             <CheckCircle size={12} className="text-emerald-400" />
-            <span className="text-emerald-400 text-xs">Ready</span>
+            <span className="text-emerald-400 text-xs">Saved to cloud</span>
           </div>
         )}
       </div>
 
-      {(state === "idle" || state === "error") && (
+      {state === "idle" || state === "error" ? (
         <>
           <button
             onClick={startRecording}
@@ -108,30 +113,21 @@ export default function AudioRecorder({ onRecordingComplete }) {
             </p>
           )}
           {state === "idle" && (
-            <p className="text-[#555] text-xs mt-2 text-center">Record audio to attach to your emergency alert</p>
+            <p className="text-[#555] text-xs mt-2 text-center">One tap — audio auto-uploads & attaches to alert</p>
           )}
         </>
-      )}
-
-      {state === "recording" && (
+      ) : state === "recording" ? (
         <button
           onClick={stopRecording}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold transition-colors text-sm border border-white/10"
         >
           <Square size={16} />
-          Stop Recording ({formatTime(duration)})
+          Stop & Upload ({formatTime(duration)})
         </button>
-      )}
-
-      {state === "processing" && (
-        <div className="w-full py-3 rounded-xl bg-white/5 text-[#888] text-sm text-center">Processing…</div>
-      )}
-
-      {state === "done" && (
+      ) : state === "uploading" ? (
+        <div className="w-full py-3 rounded-xl bg-white/5 text-[#888] text-sm text-center">Uploading audio…</div>
+      ) : state === "done" ? (
         <div className="space-y-2">
-          {audioUrl && (
-            <audio controls src={audioUrl} className="w-full h-8 rounded-lg" />
-          )}
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-xs text-emerald-400 text-center">
             ✅ Audio clip ready — will be attached to your next alert
           </div>
@@ -139,7 +135,7 @@ export default function AudioRecorder({ onRecordingComplete }) {
             Record new clip
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

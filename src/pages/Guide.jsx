@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
-import { functions } from "@/api/client";
+import { useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
-import {
-  Book, ChevronDown, ChevronRight, AlertCircle, CheckCircle,
+import { functions } from "@/api/client";
+import { 
+  Book, ChevronDown, ChevronRight, AlertCircle, CheckCircle, 
   MessageSquare, Star, Send, Phone, Mail, Shield, MapPin,
   Users, Settings, Bell, HelpCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import PageHeader from "@/components/ui/PageHeader";
 
 const guideSteps = [
   {
@@ -250,16 +249,12 @@ const troubleshooting = [
 ];
 
 export default function Guide() {
+  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState("getting-started");
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [expandedTrouble, setExpandedTrouble] = useState(null);
   const [feedback, setFeedback] = useState({ type: "", message: "", rating: 0 });
   const [submitted, setSubmitted] = useState(false);
-  const { user } = useAuth();
-
-  useEffect(() => {
-    // user comes from auth context now
-  }, []);
 
   const handleFeedbackSubmit = async () => {
     if (!feedback.message || feedback.rating === 0) {
@@ -268,12 +263,12 @@ export default function Guide() {
     }
 
     try {
-      await functions.invoke("sendFeedback", {
+      await functions.invoke('sendFeedback', {
         type: feedback.type,
-        subject: `${feedback.type === 'complaint' ? '⚠️ Complaint' : '💬 Feedback'} - Panic Ring`,
+        subject: `${feedback.type === 'complaint' ? 'Complaint' : 'Compliment'} - Panic Ring`,
         message: feedback.message,
         rating: feedback.rating,
-        email: user?.email || '',
+        email: user?.email || 'Anonymous',
         userName: user?.full_name || 'Anonymous',
       });
 
@@ -291,7 +286,17 @@ export default function Guide() {
     <div className="min-h-screen bg-[#0A0A0F] text-white pb-24">
       <div className="max-w-4xl mx-auto px-4 pt-6">
         {/* Header */}
-        <PageHeader title="User Guide" subtitle="Learn how to use Panic Ring effectively and stay safe" className="mb-8" />
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-teal-500/20 rounded-xl flex items-center justify-center">
+              <Book size={20} className="text-teal-400" />
+            </div>
+            <h1 className="text-2xl font-bold">User Guide</h1>
+          </div>
+          <p className="text-[#888] text-sm">Learn how to use Panic Ring effectively and stay safe</p>
+        </div>
+
+        {/* Quick Links */}
         <div className="flex gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
           <a href="#guide" className="px-4 py-2 bg-white/5 rounded-full text-sm whitespace-nowrap hover:bg-white/10 transition-colors">📖 Guide</a>
           <a href="#faq" className="px-4 py-2 bg-white/5 rounded-full text-sm whitespace-nowrap hover:bg-white/10 transition-colors">❓ FAQ</a>

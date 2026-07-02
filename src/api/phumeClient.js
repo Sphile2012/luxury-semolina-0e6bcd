@@ -1,6 +1,6 @@
 /**
  * Panic Ring Safety App — API Client
- * Replaces all base44 SDK usage. All requests go to the Express backend.
+ * All requests go to the Express backend.
  */
 
 // Empty = use relative paths through Vite proxy → backend

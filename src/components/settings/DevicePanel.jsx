@@ -9,7 +9,7 @@ export default function DevicePanel({ profile, onSave }) {
   const simulateConnect = async () => {
     setConnecting(true);
     await new Promise(r => setTimeout(r, 2000));
-    const name = "Panic Ring Pro-" + Math.floor(Math.random() * 1000);
+    const name = "PanicRing Pro-" + Math.floor(Math.random() * 1000);
     setDeviceName(name);
     await onSave({ device_connected: true, device_name: name });
     setConnecting(false);
@@ -46,7 +46,7 @@ export default function DevicePanel({ profile, onSave }) {
           <div className="text-center py-2">
             <Bluetooth size={32} className="text-[#444] mx-auto mb-3" />
             <p className="text-white text-sm font-medium mb-1">No device connected</p>
-            <p className="text-[#555] text-xs mb-4">Pair your Panic Ring for instant SOS activation</p>
+            <p className="text-[#555] text-xs mb-4">Pair your panic ring for instant SOS activation</p>
             <button
               onClick={simulateConnect}
               disabled={connecting}

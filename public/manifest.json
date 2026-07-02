@@ -1,18 +1,12 @@
 {
   "name": "Panic Ring - Personal Safety",
   "short_name": "Panic Ring",
-  "description": "Instant SOS alerts, live GPS tracking, and emergency response. Stay protected 24/7.",
+  "description": "Wearable panic ring with instant SOS alerts, live GPS tracking, and automatic emergency response. Stay protected 24/7.",
   "start_url": "/",
-  "id": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "background_color": "#0A0A0F",
+  "background_color": "#0b0f1a",
   "theme_color": "#ef4444",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "en-ZA",
-  "categories": ["health", "lifestyle", "utilities"],
-  "prefer_related_applications": false,
+  "orientation": "any",
   "icons": [
     {
       "src": "/favicon.ico",
@@ -23,25 +17,13 @@
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
@@ -53,11 +35,23 @@
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Find My Device",
-      "short_name": "Find",
+      "name": "Fake Call",
+      "short_name": "Fake Call",
+      "description": "Trigger a fake incoming call",
+      "url": "/FakeCall",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Find My Phone",
+      "short_name": "Find Phone",
       "description": "Locate your device",
       "url": "/FindMyPhone",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
-  ]
+  ],
+  "categories": ["health", "lifestyle", "utilities"],
+  "lang": "en-ZA",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "related_applications": []
 }

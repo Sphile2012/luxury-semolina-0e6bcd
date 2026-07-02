@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { functions } from "@/api/client";
 import { Send, CheckCircle, AlertCircle } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
 
 export default function Complaints() {
   const [form, setForm] = useState({ type: "complaint", subject: "", message: "", email: "" });
@@ -13,11 +12,11 @@ export default function Complaints() {
     if (!form.subject || !form.message) return;
     setSubmitting(true);
     try {
-      await functions.invoke("sendFeedback", {
+      await functions.invoke('sendFeedback', {
         type: form.type,
         subject: form.subject,
         message: form.message,
-        email: form.email,
+        email: form.email || 'Anonymous',
       });
       setSubmitted(true);
     } catch {
@@ -29,7 +28,10 @@ export default function Complaints() {
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white">
       <div className="max-w-md mx-auto px-4 pt-8 pb-24">
-        <PageHeader title="Complaints & Feedback" subtitle="We take every concern seriously" />
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold">Complaints & Feedback</h1>
+          <p className="text-[#666] text-sm mt-1">We take every concern seriously</p>
+        </div>
 
         {submitted ? (
           <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-8 text-center">

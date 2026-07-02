@@ -1,14 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { functions } from "@/api/client";
-import { Watch, Heart, Footprints, Battery, Wifi, WifiOff, Activity, AlertTriangle, RefreshCw } from "lucide-react";
+import { Watch, Heart, Footprints, Battery, Activity, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import FallDetection from "./FallDetection";
 
-// Simulate live biometric data (in a real app this comes from the watch SDK/BLE)
 function useSimulatedBiometrics(active) {
   const [bpm, setBpm] = useState(72);
   const [steps, setSteps] = useState(4821);
-  const [battery, setBattery] = useState(78);
+  const [battery] = useState(78);
   const [spO2, setSpO2] = useState(97);
 
   useEffect(() => {
@@ -26,10 +25,7 @@ function useSimulatedBiometrics(active) {
 
 function HeartBeat({ bpm }) {
   return (
-    <motion.div
-      animate={{ scale: [1, 1.15, 1] }}
-      transition={{ repeat: Infinity, duration: 60 / bpm, ease: "easeInOut" }}
-    >
+    <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ repeat: Infinity, duration: 60 / bpm, ease: "easeInOut" }}>
       <Heart size={20} className="text-red-400 fill-red-400" />
     </motion.div>
   );
@@ -84,11 +80,8 @@ export default function WatchDashboard({ user }) {
         <Watch size={36} className="mx-auto text-[#333] mb-3" />
         <p className="text-white font-semibold mb-1">No Smartwatch Detected</p>
         <p className="text-[#555] text-xs mb-4">Connect your WearOS or Apple Watch for live health monitoring & fall detection.</p>
-        <button
-          onClick={simulatePair}
-          disabled={pairing}
-          className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors disabled:opacity-50"
-        >
+        <button onClick={simulatePair} disabled={pairing}
+          className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors disabled:opacity-50">
           {pairing ? "Pairing…" : "Pair Smartwatch"}
         </button>
       </div>
@@ -99,7 +92,6 @@ export default function WatchDashboard({ user }) {
 
   return (
     <div className="space-y-4">
-      {/* Watch header */}
       <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -116,21 +108,16 @@ export default function WatchDashboard({ user }) {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 text-[#666] text-xs">
-              <Battery size={12} />
-              <span>{battery}%</span>
+              <Battery size={12} /><span>{battery}%</span>
             </div>
-            <button
-              onClick={syncLocation}
-              disabled={syncing}
-              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
-            >
+            <button onClick={syncLocation} disabled={syncing}
+              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50">
               <RefreshCw size={14} className={syncing ? "animate-spin" : ""} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Live biometrics grid */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white/[0.04] border border-red-500/20 rounded-2xl p-4 col-span-2">
           <div className="flex items-center gap-2 mb-1">
@@ -142,16 +129,12 @@ export default function WatchDashboard({ user }) {
             <span className="text-white text-4xl font-black tabular-nums">{bpm}</span>
             <span className="text-[#555] text-sm mb-1">BPM</span>
           </div>
-          {/* Mini ECG visualization */}
           <div className="mt-2 flex items-center gap-0.5 h-6 overflow-hidden opacity-60">
             {Array.from({ length: 40 }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="flex-1 bg-red-500 rounded-sm"
+              <motion.div key={i} className="flex-1 bg-red-500 rounded-sm"
                 animate={{ height: [2, i % 7 === 3 ? 22 : i % 7 === 4 ? 6 : 4, 2] }}
                 transition={{ repeat: Infinity, duration: 60 / bpm, delay: i * 0.05, ease: "linear" }}
-                style={{ minHeight: 2 }}
-              />
+                style={{ minHeight: 2 }} />
             ))}
           </div>
         </div>
@@ -164,15 +147,11 @@ export default function WatchDashboard({ user }) {
             <span className="text-[#888] text-xs">{battery}%</span>
           </div>
           <div className="w-full bg-white/5 rounded-full h-2">
-            <div
-              className="h-2 rounded-full transition-all"
-              style={{ width: `${battery}%`, background: battery > 30 ? "#10b981" : "#ef4444" }}
-            />
+            <div className="h-2 rounded-full transition-all" style={{ width: `${battery}%`, background: battery > 30 ? "#10b981" : "#ef4444" }} />
           </div>
         </div>
       </div>
 
-      {/* Fall Detection */}
       <FallDetection user={user} />
     </div>
   );

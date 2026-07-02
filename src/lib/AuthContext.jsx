@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { auth, tokenStore } from '@/api/client';
+import { auth, tokenStore } from '@/api/phumeClient';
 
 const AuthContext = createContext();
 
@@ -7,8 +7,9 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(false);
+  const [isLoadingPublicSettings] = useState(false); // always false — no cloud service
   const [authError, setAuthError] = useState(null);
+  const [appPublicSettings] = useState({ id: 'panic-ring', public_settings: {} });
 
   useEffect(() => {
     checkAuth();
@@ -16,51 +17,58 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     setIsLoadingAuth(true);
+    setAuthError(null);
+
     const token = tokenStore.get();
     if (!token) {
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
       return;
     }
+
     try {
-      const me = await auth.me();
-      setUser(me);
+      const currentUser = await auth.me();
+      setUser(currentUser);
       setIsAuthenticated(true);
-    } catch {
+    } catch (error) {
+      console.error('Auth check failed:', error);
       tokenStore.clear();
       setIsAuthenticated(false);
+      if (error.status === 401 || error.status === 403) {
+        setAuthError({ type: 'auth_required', message: 'Session expired. Please log in again.' });
+      }
     } finally {
       setIsLoadingAuth(false);
     }
   };
 
   const login = async (email, password) => {
-    const res = await auth.login(email, password);
-    tokenStore.set(res.token);
-    setUser(res.user);
+    const result = await auth.login(email, password);
+    tokenStore.set(result.token);
+    setUser(result.user);
     setIsAuthenticated(true);
     setAuthError(null);
-    return res;
+    return result;
   };
 
   const register = async (email, password, full_name) => {
-    const res = await auth.register(email, password, full_name);
-    tokenStore.set(res.token);
-    setUser(res.user);
+    const result = await auth.register(email, password, full_name);
+    tokenStore.set(result.token);
+    setUser(result.user);
     setIsAuthenticated(true);
     setAuthError(null);
-    return res;
+    return result;
   };
 
   const logout = () => {
-    auth.logout();
+    tokenStore.clear();
     setUser(null);
     setIsAuthenticated(false);
+    window.location.href = '/Login';
   };
 
-  // Legacy compat — some pages call navigateToLogin
   const navigateToLogin = () => {
-    window.location.href = '/login';
+    window.location.href = '/Login';
   };
 
   return (
@@ -70,7 +78,7 @@ export const AuthProvider = ({ children }) => {
       isLoadingAuth,
       isLoadingPublicSettings,
       authError,
-      appPublicSettings: null,
+      appPublicSettings,
       login,
       register,
       logout,
@@ -84,6 +92,8 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };

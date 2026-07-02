@@ -5,7 +5,6 @@ export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white">
       <div className="max-w-2xl mx-auto px-4 pt-6 pb-16">
-
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <Link to="/" className="w-9 h-9 rounded-xl bg-white/[0.05] flex items-center justify-center hover:bg-white/10 transition-colors">
@@ -20,7 +19,7 @@ export default function PrivacyPolicy() {
         </div>
 
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
-        <p className="text-[#666] text-sm mb-8">Last updated: May 2026</p>
+        <p className="text-[#666] text-sm mb-8">Last updated: April 2026</p>
 
         <div className="space-y-8 text-[#aaa] text-sm leading-relaxed">
 
@@ -36,7 +35,7 @@ export default function PrivacyPolicy() {
               <li><strong className="text-white">Personal Information:</strong> Name, email address, and phone number for account creation and emergency notifications.</li>
               <li><strong className="text-white">Emergency Contacts:</strong> Names, phone numbers, and emails of contacts you add to receive your alerts.</li>
               <li><strong className="text-white">Device Information:</strong> Device ID, model, and platform for device tracking features.</li>
-              <li><strong className="text-white">Audio Recordings:</strong> Optional emergency audio clips recorded during SOS events, stored securely.</li>
+              <li><strong className="text-white">Audio Recordings:</strong> Optional emergency audio clips recorded during SOS events, stored securely in the cloud.</li>
               <li><strong className="text-white">Usage Data:</strong> App interactions and alert history to improve service quality.</li>
             </ul>
           </section>
@@ -125,11 +124,6 @@ export default function PrivacyPolicy() {
               <p><strong className="text-white">Location:</strong> South Africa</p>
             </div>
           </section>
-
-          <div className="pt-2 flex gap-4">
-            <Link to="/terms" className="text-red-400 text-xs underline hover:text-red-300">Terms &amp; Conditions</Link>
-            <Link to="/" className="text-red-400 text-xs underline hover:text-red-300">Back to App</Link>
-          </div>
 
         </div>
       </div>

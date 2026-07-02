@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/AuthContext";
 import { Link } from "react-router-dom";
 import { ArrowLeft, AlertTriangle, CheckCircle, XCircle, MapPin, Clock, Mic, Users, Filter } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
-import PageHeader from "@/components/ui/PageHeader";
 
 const STATUS_CONFIG = {
   active: {
@@ -217,10 +216,18 @@ export default function AlertHistory() {
       <div className="max-w-md mx-auto px-4 pt-6 pb-24">
 
         {/* Header */}
-        <PageHeader
-          title="Alert History"
-          subtitle={`${alerts.length} incident${alerts.length !== 1 ? "s" : ""} recorded`}
-        />
+        <div className="flex items-center gap-3 mb-6">
+          <Link
+            to="/"
+            className="w-9 h-9 rounded-xl bg-white/[0.05] flex items-center justify-center hover:bg-white/10 transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold">Alert History</h1>
+            <p className="text-[#555] text-xs">{alerts.length} incident{alerts.length !== 1 ? "s" : ""} recorded</p>
+          </div>
+        </div>
 
         {/* Summary stats */}
         {!loading && alerts.length > 0 && (

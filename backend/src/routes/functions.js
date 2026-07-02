@@ -72,6 +72,7 @@ router.post('/sendPanicAlert', authMiddleware, async (req, res) => {
       status: 'active',
       latitude: latitude || null,
       longitude: longitude || null,
+      accuracy: accuracy != null ? Number(accuracy) : null,
       address: address || null,
       message: alertMessage,
       trigger_method: trigger_method || 'app_button',

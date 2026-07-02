@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { functions } from "@/api/client";
 
-// ── LocalStorage helpers (reliable fallback) ─────────────────────────────────
+// ── LocalStorage helpers ──────────────────────────────────────────────────────
 const LS_CONTACTS = 'pr_contacts';
 const LS_LOCATION = 'pr_location';
 const LS_QUEUE    = 'pr_queue';
@@ -24,7 +24,6 @@ function swMessage(type, payload = {}) {
   });
 }
 
-// ── Hook ─────────────────────────────────────────────────────────────────────
 export default function useOfflineMode(contacts, user) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [swReady, setSwReady]   = useState(false);
@@ -36,8 +35,6 @@ export default function useOfflineMode(contacts, user) {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     navigator.serviceWorker.register('/sw.js').then(() => setSwReady(true)).catch(() => {});
-
-    // Listen for SW-initiated flush (Background Sync)
     const handler = (e) => { if (e.data?.type === 'FLUSH_QUEUE') flushQueue(); };
     navigator.serviceWorker.addEventListener('message', handler);
     return () => navigator.serviceWorker.removeEventListener('message', handler);
@@ -52,14 +49,14 @@ export default function useOfflineMode(contacts, user) {
     return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
   }, []);
 
-  // Cache contacts to both SW and localStorage whenever they change
+  // Cache contacts
   useEffect(() => {
     if (!contacts?.length) return;
     lsSet(LS_CONTACTS, contacts);
     if (swReady) swMessage('CACHE_CONTACTS', contacts);
   }, [contacts, swReady]);
 
-  // Cache location every 30s to both stores
+  // Cache location every 30s
   useEffect(() => {
     if (!navigator.geolocation) return;
     const trackLocation = () => {
@@ -75,7 +72,7 @@ export default function useOfflineMode(contacts, user) {
           lsSet(LS_LOCATION, loc);
           if (swReady) swMessage('CACHE_LOCATION', loc);
         },
-        () => {} // silently ignore
+        () => {}
       );
     };
     trackLocation();
@@ -83,23 +80,16 @@ export default function useOfflineMode(contacts, user) {
     return () => clearInterval(iv);
   }, [swReady]);
 
-  // Queue an alert in both stores
   const queueAlert = useCallback(async (alertData) => {
     const item = { ...alertData, queued_at: Date.now(), id: crypto.randomUUID() };
-
-    // localStorage (always available)
     const queue = lsGet(LS_QUEUE) || [];
     queue.push(item);
     lsSet(LS_QUEUE, queue);
     setQueuedAlerts([...queue]);
-
-    // SW cache (for Background Sync)
     await swMessage('QUEUE_ALERT', item);
-
     return item;
   }, []);
 
-  // Flush: send all queued alerts now that we're online
   const flushQueue = useCallback(async () => {
     if (flushing.current) return;
     const queue = lsGet(LS_QUEUE) || [];
@@ -109,7 +99,6 @@ export default function useOfflineMode(contacts, user) {
     const remaining = [];
     for (const item of queue) {
       try {
-        // Try backend first
         await functions.invoke('sendPanicAlert', {
           latitude:  item.latitude,
           longitude: item.longitude,
@@ -117,10 +106,9 @@ export default function useOfflineMode(contacts, user) {
           message:   item.message,
           audio_url: item.audio_url,
         });
-        // Remove from SW queue on success
         await swMessage('REMOVE_QUEUED_ALERT', { id: item.id });
       } catch {
-        // Backend failed — open WhatsApp as fallback
+        // Backend failed — WhatsApp fallback
         const msg = encodeURIComponent(
           `🚨 *EMERGENCY ALERT (queued offline)*\n\n${item.message || 'I need help!'}\n\n📍 Location: ${
             item.latitude
@@ -133,7 +121,7 @@ export default function useOfflineMode(contacts, user) {
             setTimeout(() => window.open(`https://wa.me/${c.phone.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank'), i * 800);
           }
         });
-        remaining.push(item); // keep for next retry
+        remaining.push(item);
       }
     }
 
@@ -144,7 +132,6 @@ export default function useOfflineMode(contacts, user) {
   }, []);
 
   const getCachedContacts = useCallback(async () => {
-    // Try localStorage first (fastest), fall back to SW cache
     const ls = lsGet(LS_CONTACTS);
     if (ls?.length) return ls;
     const res = await swMessage('GET_CONTACTS');

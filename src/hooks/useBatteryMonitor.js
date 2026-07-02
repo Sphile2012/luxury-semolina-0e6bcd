@@ -17,7 +17,6 @@ export default function useBatteryMonitor(user, contacts = []) {
       const level = bat.level;
       const charging = bat.charging;
 
-      // Only alert when discharging and below threshold, with cooldown
       if (
         !charging &&
         level <= LOW_BATTERY_THRESHOLD &&
@@ -36,7 +35,6 @@ export default function useBatteryMonitor(user, contacts = []) {
         }
       }
 
-      // Reset once charging or above threshold
       if (charging || level > LOW_BATTERY_THRESHOLD) {
         alertedRef.current = false;
       }
@@ -50,7 +48,6 @@ export default function useBatteryMonitor(user, contacts = []) {
       bat.addEventListener("levelchange", onChange);
       bat.addEventListener("chargingchange", onChange);
 
-      // Store cleanup
       battery._cleanup = () => {
         bat.removeEventListener("levelchange", onChange);
         bat.removeEventListener("chargingchange", onChange);

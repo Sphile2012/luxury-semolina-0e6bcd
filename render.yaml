@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: panic-ring-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true          # Render auto-generates a secure secret
+      - key: FRONTEND_URL
+        sync: false                  # Set this manually in Render dashboard
+      - key: BACKEND_URL
+        sync: false                  # Set to your Render service URL
+      - key: PAYFAST_SANDBOX
+        value: "true"
+      - key: PAYFAST_MERCHANT_ID
+        value: "10000100"
+      - key: PAYFAST_MERCHANT_KEY
+        value: "46f0cd694581a"
+      - key: PAYFAST_PASSPHRASE
+        value: "jt7NOE43FZPn"

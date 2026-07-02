@@ -22,7 +22,7 @@ const supportLinks = [
   { label: "FAQ", href: "#" },
   { label: "Complaints & Suggestions", href: "#" },
   { label: "WhatsApp Support", href: "https://wa.me/27000000000" },
-  { label: "Email Support", href: "mailto:poomeigh503@gmail.com" },
+  { label: "Email Support", href: "mailto:support@panicring.app" },
 ];
 
 export default function AppDownloadSection() {
@@ -73,7 +73,7 @@ export default function AppDownloadSection() {
               </div>
 
               <a
-                href="https://panicring-app.com/downloads/Panic Ring-v2.1.0.apk"
+                href="https://panic-ring-app.com/downloads/PanicRing-v2.1.0.apk"
                 download
                 className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl transition-colors mb-4"
               >
@@ -103,7 +103,7 @@ export default function AppDownloadSection() {
               <div className="w-8 h-8 bg-[#1a1a2e] border border-white/10 rounded-lg flex items-center justify-center">
                 <Shield size={15} className="text-teal-400" />
               </div>
-              <span className="text-white font-bold">Panic Ring</span>
+              <span className="text-white font-bold">PanicRing</span>
             </div>
             <p className="text-[#8a9ab0] text-xs leading-relaxed mb-5">
               Your personal safety companion. Advanced emergency response technology designed to keep you protected and give your family peace of mind.
@@ -164,10 +164,7 @@ export default function AppDownloadSection() {
         </div>
 
         <div className="max-w-5xl mx-auto mt-10 pt-6 border-t border-white/[0.06] text-center text-[#555] text-xs">
-          © 2026 Panic Ring. All rights reserved. &nbsp;·&nbsp;
-          <Link to="/privacy" className="hover:text-white transition-colors underline">Privacy Policy</Link>
-          &nbsp;·&nbsp;
-          <Link to="/terms" className="hover:text-white transition-colors underline">Terms & Conditions</Link>
+          © 2026 PanicRing. All rights reserved.
         </div>
       </footer>
     </>

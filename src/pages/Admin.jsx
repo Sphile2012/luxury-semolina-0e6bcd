@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { entities, auth } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
+import { auth, entities } from "@/api/client";
 import { AlertTriangle, Users, Activity, Shield, CheckCircle, RefreshCw, MapPin, TrendingUp, Smartphone, UserCheck, ChevronDown, ChevronUp, Mail, Phone } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { format, subDays, startOfDay } from "date-fns";
 import { formatDistanceToNow } from "date-fns";
-import PageHeader from "@/components/ui/PageHeader";
 
 export default function Admin() {
   const queryClient = useQueryClient();
@@ -110,15 +110,22 @@ export default function Admin() {
     <div className="min-h-screen bg-[#0A0A0F] text-white">
       <div className="max-w-2xl mx-auto px-4 pt-6 pb-24">
         {/* Header */}
-        <PageHeader
-          title="Admin Dashboard"
-          subtitle={`Last updated: ${lastUpdated}`}
-          onRefresh={() => {
-            queryClient.invalidateQueries({ queryKey: ['adminAlerts'] });
-            queryClient.invalidateQueries({ queryKey: ['adminProfiles'] });
-            queryClient.invalidateQueries({ queryKey: ['adminDevices'] });
-          }}
-        />
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            <p className="text-[#666] text-sm mt-1">Last: {lastUpdated}</p>
+          </div>
+          <button
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ['adminAlerts'] });
+              queryClient.invalidateQueries({ queryKey: ['adminProfiles'] });
+              queryClient.invalidateQueries({ queryKey: ['adminDevices'] });
+            }}
+            className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+          >
+            <RefreshCw size={15} className="text-[#666]" />
+          </button>
+        </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">

@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Shield } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { Shield } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 
 const faqSections = [
   {
@@ -8,7 +10,7 @@ const faqSections = [
     items: [
       {
         question: "What is Panic Ring and how does it work?",
-        answer: "Panic Ring is an advanced personal safety app that combines a wearable ring with a smartphone app. When you press the ring button or activate SOS in the app, it instantly sends emergency alerts to your designated contacts with your live GPS location. The system includes fall detection, automatic police contact, and works even if your SIM card is removed through IMEI tracking.",
+        answer: "Panic Ring is an advanced personal safety device that combines a wearable ring with a smartphone app. When you press the ring button or activate SOS in the app, it instantly sends emergency alerts to your designated contacts with your live GPS location updating every 3 seconds. The system includes fall detection, automatic police contact, and works even if your SIM card is removed through IMEI tracking.",
       },
       {
         question: "What devices are compatible with Panic Ring?",
@@ -33,7 +35,7 @@ const faqSections = [
       },
       {
         question: "Can I use the app without the ring?",
-        answer: "Yes. Panic Ring works fully as a standalone safety app with the SOS button, GPS tracking, fake call, and audio recording features — even without the physical ring.",
+        answer: "Yes. The app works fully as a standalone safety app with the SOS button, GPS tracking, fake call, and audio recording features — even without the physical ring.",
       },
     ],
   },
@@ -72,6 +74,7 @@ const faqSections = [
 export default function FAQ() {
   const [expanded, setExpanded] = useState({});
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const toggle = (sectionIdx, itemIdx) => {
     const key = `${sectionIdx}-${itemIdx}`;
@@ -80,30 +83,35 @@ export default function FAQ() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
+      {/* Minimal Nav */}
       <nav className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
             <Shield size={16} className="text-white" />
           </div>
-          <span className="font-bold text-gray-900">Panic Ring</span>
         </Link>
         <div className="flex items-center gap-4">
           <Link to="/faq" className="text-sm text-teal-500 font-medium">FAQ</Link>
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate(isAuthenticated ? '/Settings' : '/Login')}
             className="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
           >
-            My Profile
+            {isAuthenticated ? 'My Profile' : 'Sign In'}
+          </button>
+          <button className="flex items-center gap-1 border border-gray-300 text-gray-700 text-sm px-3 py-2 rounded-full hover:border-gray-400 transition-colors">
+            ↓ Get App
           </button>
         </div>
       </nav>
 
       <div className="max-w-2xl mx-auto px-4 py-12">
+        {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-3">Frequently Asked Questions</h1>
           <p className="text-teal-500 text-sm">Find answers to common questions about Panic Ring features, setup, and usage</p>
         </div>
 
+        {/* Sections */}
         <div className="space-y-8">
           {faqSections.map((section, sIdx) => (
             <div key={sIdx}>

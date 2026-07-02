@@ -1,18 +1,17 @@
 import { useState, useEffect } from "react";
 import { entities } from "@/api/client";
 import { getDeviceInfo } from "@/hooks/useDeviceFingerprint";
-import { Shield, Smartphone, MapPin, Bell, CheckCircle, ChevronRight } from "lucide-react";
+import { Shield, Smartphone, MapPin, CheckCircle, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function OnboardingSetup({ user, onComplete }) {
-  const [step, setStep] = useState(0); // 0=welcome, 1=device, 2=contacts, 3=done
+  const [step, setStep] = useState(0);
   const [deviceInfo, setDeviceInfo] = useState(null);
   const [locationGranted, setLocationGranted] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const info = getDeviceInfo();
-    setDeviceInfo(info);
+    setDeviceInfo(getDeviceInfo());
   }, []);
 
   const requestLocation = async () => {
@@ -31,7 +30,6 @@ export default function OnboardingSetup({ user, onComplete }) {
     try {
       const info = deviceInfo || getDeviceInfo();
 
-      // Create SafetyProfile with detected device info
       await entities.SafetyProfile.create({
         owner_email: user.email,
         device_imei: info.deviceId,
@@ -44,12 +42,11 @@ export default function OnboardingSetup({ user, onComplete }) {
         custom_alert_message: "I need help! Please contact me immediately.",
       });
 
-      // Register device in SharedDevice
       await entities.SharedDevice.create({
         owner_email: user.email,
         device_id: info.deviceId,
         device_name: info.deviceName,
-        device_type: info.deviceType,
+        device_type: info.deviceType || 'phone',
         platform: info.platform,
         tracking_enabled: locationGranted,
       });
@@ -74,10 +71,7 @@ export default function OnboardingSetup({ user, onComplete }) {
           <p className="text-[#888] text-sm leading-relaxed mb-8">
             Let's set up your safety profile in 2 quick steps. This takes less than a minute.
           </p>
-          <button
-            onClick={() => setStep(1)}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2"
-          >
+          <button onClick={() => setStep(1)} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2">
             Let's Get Started <ChevronRight size={16} />
           </button>
         </div>
@@ -91,9 +85,7 @@ export default function OnboardingSetup({ user, onComplete }) {
             <Smartphone size={30} className="text-blue-400" />
           </div>
           <h2 className="text-xl font-black text-white mb-2 text-center">Device Detected</h2>
-          <p className="text-[#888] text-xs text-center mb-6">
-            We've automatically detected your device info
-          </p>
+          <p className="text-[#888] text-xs text-center mb-6">We've automatically detected your device info</p>
 
           {deviceInfo && (
             <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-4 mb-4 space-y-3">
@@ -105,14 +97,11 @@ export default function OnboardingSetup({ user, onComplete }) {
 
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-6">
             <p className="text-amber-400 text-xs leading-relaxed">
-              ⚠️ Your unique Device ID is automatically generated and stored securely on this device. It works like an IMEI to identify your phone.
+              ⚠️ Your unique Device ID is automatically generated and stored securely on this device.
             </p>
           </div>
 
-          <button
-            onClick={() => setStep(2)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2"
-          >
+          <button onClick={() => setStep(2)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2">
             Looks Good <ChevronRight size={16} />
           </button>
         </div>
@@ -136,19 +125,12 @@ export default function OnboardingSetup({ user, onComplete }) {
               <p className="text-green-400 text-sm font-medium">Location access granted!</p>
             </div>
           ) : (
-            <button
-              onClick={requestLocation}
-              className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2 mb-4"
-            >
+            <button onClick={requestLocation} className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2 mb-4">
               <MapPin size={16} /> Grant Location Access
             </button>
           )}
 
-          <button
-            onClick={finishSetup}
-            disabled={saving}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2"
-          >
+          <button onClick={finishSetup} disabled={saving} className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2">
             {saving ? "Setting up..." : locationGranted ? "Complete Setup" : "Skip & Complete Setup"}
             {!saving && <ChevronRight size={16} />}
           </button>
@@ -159,11 +141,7 @@ export default function OnboardingSetup({ user, onComplete }) {
       key: "done",
       content: (
         <div className="text-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="w-20 h-20 bg-green-500/20 border border-green-500/40 rounded-full flex items-center justify-center mx-auto mb-6"
-          >
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 bg-green-500/20 border border-green-500/40 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle size={40} className="text-green-400" />
           </motion.div>
           <h2 className="text-2xl font-black text-white mb-3">You're All Set!</h2>
@@ -175,30 +153,16 @@ export default function OnboardingSetup({ user, onComplete }) {
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center px-4">
-      {/* Progress dots */}
       <div className="w-full max-w-sm">
         {step < 3 && (
           <div className="flex justify-center gap-2 mb-8">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i <= step ? "w-8 bg-red-500" : "w-4 bg-white/10"
-                }`}
-              />
+            {[0, 1, 2].map(i => (
+              <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i <= step ? "w-8 bg-red-500" : "w-4 bg-white/10"}`} />
             ))}
           </div>
         )}
-
         <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.25 }}
-            className="bg-white/[0.03] border border-white/[0.07] rounded-3xl p-7"
-          >
+          <motion.div key={step} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.25 }} className="bg-white/[0.03] border border-white/[0.07] rounded-3xl p-7">
             {steps[step].content}
           </motion.div>
         </AnimatePresence>
@@ -211,9 +175,7 @@ function Row({ label, value, mono }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-[#666] text-xs">{label}</span>
-      <span className={`text-white text-xs font-medium ${mono ? "font-mono text-[10px] text-teal-400" : ""}`}>
-        {value}
-      </span>
+      <span className={`text-white text-xs font-medium ${mono ? "font-mono text-[10px] text-teal-400" : ""}`}>{value}</span>
     </div>
   );
 }

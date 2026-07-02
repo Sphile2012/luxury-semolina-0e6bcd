@@ -1,0 +1,59 @@
+{
+  "name": "SafeZone",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email of the user who created this zone"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "home",
+        "work",
+        "school",
+        "police",
+        "hospital",
+        "fire_station",
+        "security",
+        "other"
+      ],
+      "default": "home"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "radius": {
+      "type": "number",
+      "default": 200,
+      "description": "Radius in meters"
+    },
+    "address": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "hours": {
+      "type": "string"
+    },
+    "alert_on_exit": {
+      "type": "boolean",
+      "default": true,
+      "description": "Send alert when user exits this zone"
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "owner_email",
+    "latitude",
+    "longitude"
+  ]
+}

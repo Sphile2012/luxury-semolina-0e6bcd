@@ -1,0 +1,54 @@
+{
+  "users": [
+    {
+      "id": "6def2c91-6a78-4a39-a81f-c02e994784c9",
+      "email": "test@panicring.com",
+      "full_name": "Test User",
+      "password_hash": "$2a$12$5ObRu8OZgKAkfkqZHOJ33evDCFvNAxHovyutnS3ymODwBHIipJGYG",
+      "role": "user",
+      "created_date": "2026-04-30T01:03:26.852Z",
+      "updated_date": "2026-04-30T01:03:26.852Z"
+    },
+    {
+      "id": "c898f808-8a47-4dd6-bd8b-de0aa20da0f0",
+      "email": "poomeigh503@gmail.com",
+      "full_name": "ph",
+      "password_hash": "$2a$12$WWMLJezK8W1i5m2hxHcIqO8eS0TIgk7C801wj7CEwym2KP3EyEZcy",
+      "role": "user",
+      "created_date": "2026-04-30T01:18:51.946Z",
+      "updated_date": "2026-04-30T01:18:51.946Z"
+    }
+  ],
+  "safety_profiles": [
+    {
+      "owner_email": "poomeigh503@gmail.com",
+      "device_imei": "PR-MOKSPKO9-KQEOKH-2J1QWZ",
+      "device_name": "Windows PC",
+      "device_model": "Windows PC",
+      "device_platform": "android",
+      "device_connected": false,
+      "location_sharing": false,
+      "subscription_plan": "basic",
+      "custom_alert_message": "I need help! Please contact me immediately.",
+      "id": "8fc5ab66-d761-42f6-84df-b3fa76a87168",
+      "created_date": "2026-04-30T01:19:06.795Z",
+      "updated_date": "2026-04-30T01:19:06.795Z"
+    }
+  ],
+  "emergency_contacts": [],
+  "alerts": [],
+  "safe_zones": [],
+  "shared_devices": [
+    {
+      "owner_email": "poomeigh503@gmail.com",
+      "device_id": "PR-MOKSPKO9-KQEOKH-2J1QWZ",
+      "device_name": "Windows PC",
+      "device_type": "phone",
+      "platform": "android",
+      "tracking_enabled": false,
+      "id": "813f0f38-9674-4c9d-8b8b-733de4edcee9",
+      "created_date": "2026-04-30T01:19:06.816Z",
+      "updated_date": "2026-04-30T01:19:06.816Z"
+    }
+  ]
+}

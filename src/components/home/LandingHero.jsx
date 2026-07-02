@@ -97,7 +97,7 @@ export default function LandingHero({ onGetStarted }) {
         </h1>
 
         <p className="text-[#8a9ab0] text-base md:text-lg max-w-xl leading-relaxed mb-10">
-          Panic Ring wearable with instant SOS alerts, live GPS tracking, and
+          Wearable panic ring with instant SOS alerts, live GPS tracking, and
           automatic emergency response. Stay protected 24/7 with just one tap.
         </p>
 
@@ -142,8 +142,6 @@ export default function LandingHero({ onGetStarted }) {
       {/* Footer - Privacy Policy required for Play Store */}
       <div className="text-center py-6 border-t border-white/[0.06] text-[#444] text-xs">
         <Link to="/privacy" className="hover:text-white transition-colors underline underline-offset-2">Privacy Policy</Link>
-        <span className="mx-3">·</span>
-        <Link to="/terms" className="hover:text-white transition-colors underline underline-offset-2">Terms & Conditions</Link>
         <span className="mx-3">·</span>
         <span>© {new Date().getFullYear()} Panic Ring. All rights reserved.</span>
       </div>

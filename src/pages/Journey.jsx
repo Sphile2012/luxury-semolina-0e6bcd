@@ -9,7 +9,7 @@ import { MapPin, Users, Play, Square, CheckCircle, ArrowLeft } from "lucide-reac
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = import.meta["env"]?.VITE_API_URL || "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function Journey() {
   const { user } = useAuth();
@@ -57,7 +57,7 @@ export default function Journey() {
 
       // Notify backend
       try {
-        const token = localStorage.getItem("pr_token");
+        const token = localStorage.getItem("panic_ring_token");
         await fetch(`${API_BASE}/api/functions/startJourney`, {
           method: "POST",
           headers: {
@@ -146,7 +146,7 @@ export default function Journey() {
     });
 
     try {
-      const token = localStorage.getItem("pr_token");
+      const token = localStorage.getItem("panic_ring_token");
       await fetch(`${API_BASE}/api/functions/endJourney`, {
         method: "POST",
         headers: {

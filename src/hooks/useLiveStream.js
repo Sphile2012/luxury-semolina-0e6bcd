@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { tokenStore } from "@/api/client";
 
 const STREAM_INTERVAL_MS = 10000;
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function useLiveStream({ userId, enabled = false } = {}) {
   const [streaming, setStreaming] = useState(false);

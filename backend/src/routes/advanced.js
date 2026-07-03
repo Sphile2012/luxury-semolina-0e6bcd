@@ -183,61 +183,8 @@ router.post('/functions/escalateAlert', authMiddleware, (req, res) => {
 });
 
 // ── REQ 14: Journey Planner ───────────────────────────────────────────────────
-
-// POST /api/functions/startJourney
-router.post('/functions/startJourney', authMiddleware, (req, res) => {
-  try {
-    const user = req.user;
-    const { destination, duration_minutes, contacts = [], start_lat, start_lng } = req.body;
-
-    if (!destination || !duration_minutes) {
-      return res.status(400).json({ error: 'destination and duration_minutes are required' });
-    }
-
-    const journeyId = uuidv4();
-    const now = new Date().toISOString();
-
-    db.raw.prepare(`
-      INSERT INTO journeys (id, owner_email, destination, duration_minutes, status, start_lat, start_lng, contacts, created_date, updated_date)
-      VALUES (?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
-    `).run(journeyId, user.email, destination, duration_minutes, start_lat || null, start_lng || null, JSON.stringify(contacts), now, now);
-
-    // Build WhatsApp notifications for followers
-    const whatsappLinks = contacts
-      .filter(c => c.phone)
-      .map(c => {
-        const msg = encodeURIComponent(
-          `🗺️ *Journey Started — Panic Ring*\n\n${user.full_name || user.email} has started a journey to "${destination}".\n\nEstimated duration: ${duration_minutes} minutes.\n\nThey will notify you when they arrive safely.\n\n_Sent via Panic Ring_`
-        );
-        return { name: c.name, url: `https://wa.me/${c.phone.replace(/[^0-9]/g, '')}?text=${msg}` };
-      });
-
-    res.json({ success: true, journey_id: journeyId, whatsapp_links: whatsappLinks });
-  } catch (err) {
-    console.error('startJourney error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST /api/functions/endJourney
-router.post('/functions/endJourney', authMiddleware, (req, res) => {
-  try {
-    const user = req.user;
-    const { journey_id, completed = false } = req.body;
-
-    if (!journey_id) return res.status(400).json({ error: 'journey_id is required' });
-
-    const now = new Date().toISOString();
-    db.raw.prepare(`
-      UPDATE journeys SET status = ?, completed_at = ?, updated_date = ? WHERE id = ? AND owner_email = ?
-    `).run(completed ? 'completed' : 'ended', now, now, journey_id, user.email);
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error('endJourney error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
+// Note: Journey endpoints (startJourney, endJourney) are implemented in routes/functions.js
+// to avoid route duplication. They are accessible at /api/functions/startJourney and /api/functions/endJourney
 
 // ── REQ 16: Community Safety Map ─────────────────────────────────────────────
 

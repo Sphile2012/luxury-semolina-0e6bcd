@@ -9,8 +9,7 @@ import {
   ChevronLeft, ChevronRight, MapPin, Shield,
   Phone, Navigation, Watch, Bell, Mic, Map,
   PhoneCall, History
-} from "lucide-react";
-import LandingHero from "@/components/home/LandingHero";
+} from "lucide-react";import LandingHero from "@/components/home/LandingHero";
 import OnboardingSetup from "@/components/home/OnboardingSetup";
 import HomeSkeleton from "@/components/home/HomeSkeleton";
 import EmergencyCallingScreen from "@/components/home/EmergencyCallingScreen";
@@ -319,7 +318,7 @@ export default function Home() {
       </AnimatePresence>
       <TapToAlert corner="bottom-right" onTriggered={handleTriggered} />
 
-      {/* Alert strip */}
+      {/* Active alert strip */}
       <AnimatePresence>
         {activeAlert && (
           <motion.div key="strip" initial={{ y: -48 }} animate={{ y: 0 }} exit={{ y: -48 }}
@@ -339,33 +338,28 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* ── HEADER */}
-      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 16px", height: 52, flexShrink: 0,
-        background: "rgba(255,255,255,0.6)", backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)", borderBottom: "1px solid rgba(255,255,255,0.72)",
-        position: "sticky", top: activeAlert ? 44 : 0, zIndex: 40 }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-          <span style={{ color: "#C01818", fontWeight: 900, fontSize: 22, lineHeight: 1 }}>i</span>
-          <span style={{ color: "#1C2A2C", fontWeight: 900, fontSize: 15 }}>
+      {/* GPS status pill — compact, sits under the Layout header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "8px 16px", background: "rgba(255,255,255,0.5)",
+        borderBottom: "1px solid rgba(255,255,255,0.7)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+          <span style={{ color: "#C01818", fontWeight: 900, fontSize: 18, lineHeight: 1 }}>i</span>
+          <span style={{ color: "#1C2A2C", fontWeight: 800, fontSize: 13 }}>
             {user?.full_name?.split(" ")[0]
-              ? `HELLO, ${user.full_name.split(" ")[0].toUpperCase()}`
-              : "PANIC RING"}
+              ? `Hello, ${user.full_name.split(" ")[0]}`
+              : "Panic Ring"}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%",
-              background: locAvail ? "#22C55E" : "#F59E0B",
-              boxShadow: locAvail ? "0 0 5px #22C55E" : "none" }} />
-            <span style={{ fontSize: 10, color: "#3A6A6E", fontWeight: 600 }}>
-              {locLoading ? "…" : locUnavail ? "No GPS" : locSource === "gps" ? "GPS" : locSource === "network" ? "Cell" : "Cached"}
-              {locAvail && accuracy && !locLoading ? ` ±${Math.round(accuracy)}m` : ""}
-            </span>
-          </div>
-          <Link to="/Settings" aria-label="Settings"><Settings size={20} color="#1C2A2C" /></Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ width: 7, height: 7, borderRadius: "50%",
+            background: locAvail ? "#22C55E" : "#F59E0B",
+            boxShadow: locAvail ? "0 0 4px #22C55E" : "none" }} />
+          <span style={{ fontSize: 10, color: "#3A6A6E", fontWeight: 600 }}>
+            {locLoading ? "Locating…" : locUnavail ? "No GPS" : locSource === "gps" ? "GPS" : locSource === "network" ? "Cell" : "Cached"}
+            {locAvail && accuracy && !locLoading ? ` ±${Math.round(accuracy)}m` : ""}
+          </span>
         </div>
-      </header>
+      </div>
 
       {/* ── NEARBY ROW */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-around",

@@ -18,6 +18,7 @@ import AlertHistory from './pages/AlertHistory.jsx';
 import Subscriptions from './pages/Subscriptions.jsx';
 import PaymentSuccess from './pages/PaymentSuccess.jsx';
 import PaymentCancel from './pages/PaymentCancel.jsx';
+import Journey from './pages/Journey.jsx';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -69,6 +70,8 @@ const AuthenticatedApp = () => {
       <Route path="/complaints" element={<LayoutWrapper currentPageName="Complaints"><Complaints /></LayoutWrapper>} />
       <Route path="/AlertHistory" element={<LayoutWrapper currentPageName="AlertHistory"><AlertHistory /></LayoutWrapper>} />
       <Route path="/Subscriptions" element={<LayoutWrapper currentPageName="Subscriptions"><Subscriptions /></LayoutWrapper>} />
+      <Route path="/Journey" element={<LayoutWrapper currentPageName="Journey"><Journey /></LayoutWrapper>} />
+      <Route path="/journey" element={<Navigate to="/Journey" replace />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsAndConditions />} />
 

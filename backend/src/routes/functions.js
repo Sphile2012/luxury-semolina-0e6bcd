@@ -424,6 +424,95 @@ router.post('/checkGeofence', authMiddleware, async (req, res) => {
   }
 });
 
+// ── POST /api/functions/startJourney ──────────────────────────────────────────
+router.post('/startJourney', authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const { destination, duration_minutes, contacts, start_lat, start_lng } = req.body;
+
+    if (!destination || !duration_minutes) {
+      return res.status(400).json({ error: 'destination and duration_minutes are required' });
+    }
+
+    const journeyId = uuidv4();
+    const now = new Date().toISOString();
+
+    db.insert('journeys', {
+      id: journeyId,
+      owner_email: user.email,
+      destination: destination.trim(),
+      duration_minutes: Number(duration_minutes),
+      status: 'active',
+      start_lat: start_lat || null,
+      start_lng: start_lng || null,
+      contacts: JSON.stringify(contacts || []),
+      created_date: now,
+      updated_date: now,
+    });
+
+    // Notify contacts via WhatsApp
+    const contactList = Array.isArray(contacts) ? contacts : [];
+    const waMsg = encodeURIComponent(
+      `🚶 *Journey Started — Panic Ring*\n\n${user.full_name || user.email} is traveling to:\n📍 ${destination}\n⏱️ Expected duration: ${duration_minutes} minutes\n\nYou'll be notified when they arrive safely.\n\n_Sent via Panic Ring_`
+    );
+    const whatsappLinks = contactList.filter(c => c.phone).map(c => ({
+      name: c.name,
+      phone: c.phone,
+      url: `https://wa.me/${c.phone.replace(/[^0-9]/g, '')}?text=${waMsg}`,
+    }));
+
+    res.json({ 
+      success: true, 
+      journey_id: journeyId, 
+      destination, 
+      duration_minutes,
+      contacts_notified: contactList.length,
+      whatsapp_links: whatsappLinks
+    });
+  } catch (err) {
+    console.error('startJourney error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/functions/endJourney ────────────────────────────────────────────
+router.post('/endJourney', authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+    const { journey_id, completed } = req.body;
+
+    if (!journey_id) {
+      return res.status(400).json({ error: 'journey_id is required' });
+    }
+
+    // Verify journey ownership
+    const journey = db.getById('journeys', journey_id);
+    if (!journey) {
+      return res.status(404).json({ error: 'Journey not found' });
+    }
+    if (journey.owner_email !== user.email) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const now = new Date().toISOString();
+    db.update('journeys', journey_id, {
+      status: completed ? 'completed' : 'cancelled',
+      completed_at: now,
+      updated_date: now,
+    });
+
+    res.json({ 
+      success: true, 
+      journey_id, 
+      status: completed ? 'completed' : 'cancelled',
+      completed_at: now
+    });
+  } catch (err) {
+    console.error('endJourney error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/functions/sendFeedback ─────────────────────────────────────────
 router.post('/sendFeedback', async (req, res) => {
   try {
